@@ -412,6 +412,10 @@ def inativar():
                     db.session.add(mag_produto)
                     db.session.commit()
 
+                Log.info(f'[INATIVAR]------ Salvando alterações no ERP')
+                p.idtipo = 3
+                p.update()
+
             except Exception as e:
                 Log.error(f'[INATIVAR] Erro ao enviar o produto {p.idsubproduto} erro: {e}')
 

@@ -105,7 +105,7 @@ def buscar_produtos_inativos():
     produtos = buscarProdutos(inativo=True)
     produtos = produtos.filter(CissProdutoGrade.idtipo == 2)
     produtos = produtos.order_by(CissProdutoGrade.descrresproduto)
-    produtos = produtos.all()[:5]
+    produtos = produtos.all()
 
     return produtos
 
@@ -235,7 +235,7 @@ def buscar_produtos_promocao(dthr_sincr=None):
     )
     produtos = produtos.union(produtos_removidos).all()
 
-    return produtos[:5]
+    return produtos
 
 
 def verificaCategoriasProdutos():
