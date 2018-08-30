@@ -1,0 +1,59 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+<div class="col-xs-12" style="margin-bottom: 15px">
+    <div class="ultra-feature-container">
+        <div class="row">
+            
+            <div class="col-xs-12" style="margin-bottom: 15px">
+                <h3>{{ title }} <span class="label label-default">{{ subtitle }}</span> </h3>
+                <hr>
+            </div>
+
+            {% if has_cat_default %}
+            
+            <div class="col-xs-12" style="margin-bottom: 15px">
+                <form action="" class="form-horizontal" method="POST">
+                    {{ form.csrf_token }}
+
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            {{ form.submit(class="btn btn-primary")}}
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="col-md-12" style="margin-bottom: 15px">
+                <!-- loading -->
+                <div id="loading">
+                    <div class="lds-ring">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <p class="title">Carregando...</p>
+                    </div>                    
+                </div>
+
+                <div id="tree" style="display: none"></div>
+            </div>
+            
+            {% else %}
+            
+            <div class="col-xs-12" style="margin-bottom: 15px">
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <ul>
+                        <li>É necessário que seja configurado a categoria default do site em <a href="{{ url_for('configuration.magento') }}">Configurações</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

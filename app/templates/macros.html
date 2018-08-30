@@ -1,0 +1,14 @@
+{% macro listar_categorias(categorias, level=1) %}
+    <ul class="list-group">
+        {% for c in categorias %}
+            <li class="list-group-item">
+                <span>{{ c.name }}</span>
+
+                {% if c.childrens %}
+                    {{ listar_categorias(c.childrens, level=level+1) }}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    <br/>
+{% endmacro %}

@@ -1,0 +1,42 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Error 401</title>
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+
+    <!-- Estilos CSS -->
+    {% assets "css" %}
+    <link href="{{ ASSET_URL }}" rel="stylesheet" type="text/css">
+    {% endassets %}
+    <link href="{{ url_for('static', filename='css/error-pages.css') }}" rel="stylesheet" type="text/css">
+</head>
+
+<body style="">
+    <div class="error-404">
+        <div class="error-code m-b-10 m-t-20">401
+            <i class="fa fa-warning"></i>
+        </div>
+        <h2 class="error-title font-bold">Oops! Você precisa estar logado para acessar está página.</h2>
+
+        <div class="error-desc">
+            Desculpe, mas a página que você tentou acessar é de acesso restrito.
+            <br> Se você possui um usuário e senha de acesso realize o login no sistema.
+            <div>
+                <br>
+                <!-- <a class=" login-detail-panel-button btn" href="http://vultus.de/"> -->
+                <a href="{{ url_for('bp.index') }}" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-user"></span> Ir para a Tela de Login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts JS minificados -->
+    {% assets "js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+
+</body>
+
+</html>

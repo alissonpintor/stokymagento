@@ -1,0 +1,48 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+<div class="col-xs-12" style="margin-bottom: 15px">
+    <div class="ultra-feature-container">
+        <div class="row">
+            
+            <div class="col-xs-12" style="margin-bottom: 15px">
+                <h3>{{ title }}</h3>
+                <hr>
+            </div>
+            
+            <div class="col-xs-12 col-md-9" style="margin-bottom: 15px">
+                <form action="" class="form-horizontal" method="POST">
+                    {{ form.csrf_token }}
+
+                    {{ form.idproduto() }}                    
+                    {{ form.secao() }}
+                    {{ form.grupo() }}
+                    {{ form.subgrupo() }}
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            {{ form.submit(class="btn btn-primary")}}
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="col-xs-12 col-md-9" style="margin-bottom: 15px">
+                <form action="" class="form-horizontal" method="POST" enctype=multipart/form-data>
+                    {{ form_file.csrf_token }}
+
+                    {{ form_file.lista() }} 
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            {{ form_file.submit(class="btn btn-primary")}}
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

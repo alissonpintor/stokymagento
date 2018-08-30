@@ -1,0 +1,63 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+<div class="col-xs-12" style="margin-bottom: 15px">
+    <div class="ultra-feature-container">
+        <div class="row">
+            
+            <div class="col-xs-12" style="margin-bottom: 15px">
+                <h3>{{ title }} <span class="label label-default">{{ subtitle }}</span></h3>
+                <hr>
+            </div>
+
+            <div class="col-md-12" style="margin-bottom: 15px">
+                <form action="{{ url_for('produtos.atualiza_precos') }}" method="POST">
+                    {{ form.csrf_token }} 
+
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            {{ form.enviar(class="btn btn-primary")}}
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            {% if produtos %}
+            <div class="col-xs-12 col-md-12" style="margin-bottom: 15px">
+                
+                <table
+                    id="mytable"
+                    class="display" 
+                    data-toggle="table"
+                    data-search="true"
+                    data-show-columns="true"
+                    data-click-to-select="true"
+                    data-toolbar="#toolbar"
+                    data-show-export="true">
+                    <thead>
+                        <tr>
+                            <th data-sortable="true">Codigo</th>
+                            <th data-sortable="true">Descrição</th>
+                            <th data-sortable="true">Marca</th>
+                            <th>Preço</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in produtos %}
+                        <tr>
+                            <td>{{ p.idsubproduto }}</td>
+                            <td>{{ p.produto.descrresproduto }}</td>
+                            <td>{{ p.produto.produto.fabricante }}</td>
+                            <td>{{ p.valprecovarejo|currency }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

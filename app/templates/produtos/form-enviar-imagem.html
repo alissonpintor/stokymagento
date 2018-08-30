@@ -1,0 +1,41 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+<div class="col-xs-12" style="margin-bottom: 15px">
+    <div class="ultra-feature-container">
+        <div class="row">
+            
+            <div class="col-xs-12" style="margin-bottom: 15px">
+                <h3>{{ title }}</h3>
+                <hr>
+            </div>
+
+            <div class="col-md-12" style="margin-bottom: 15px">
+                <form id="dropzoneForm" action="{{ url_for('produtos.enviar_imagem') }}" class="dropzone">
+                    <div class="fallback">
+                        <input name="imagens_produtos" type="file" multiple />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        Dropzone.options.dropzoneForm = {
+            maxFilesize: 1,
+            accept: function(file, done) {
+                console.log('ok');
+                if (file.name == "banner.jpg") {
+                    done("Naha, you don't.");
+                }
+                else { done(); }
+            },
+            dictDefaultMessage: 'Solte as imagens aqui ou clique para selcionar.'
+        };
+    });
+</script>
+{% endblock %}

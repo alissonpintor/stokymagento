@@ -1,0 +1,49 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+<div class="col-xs-12" style="margin-bottom: 15px">
+    <div class="ultra-feature-container">
+        <div class="row">
+            
+            <div class="col-xs-12" style="margin-bottom: 15px">
+                <h3>{{ title }}</h3>
+                <hr>
+            </div>
+
+            <div class="col-xs-12 col-md-9" style="margin-bottom: 15px">
+                <form action="" method="POST">
+                    {{ form.csrf_token }} 
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            {{ form.enviar(class="btn btn-primary")}}
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            {% if produtos %}
+            <div class="col-xs-12 col-md-9" style="margin-bottom: 15px">
+                <table class="table">
+                    <thead>
+                        <th>Codigo</th>
+                        <th>Problema</th>
+                        <th>Marca</th>
+                    </thead>
+                    <tbody>
+                        {% for p in produtos %}
+                        <tr>
+                            <td>{{ p.idsubproduto }}</td>
+                            <td>{{ '%s %s'|format(p.produto.descrcomproduto, p.subdescricao) }}</td>
+                            <td>{{ p.produto.fabricante }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

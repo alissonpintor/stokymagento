@@ -1,0 +1,42 @@
+<div id="u-topbar">
+        
+    <div class="title">
+        Stoky<br />
+        <span class="title-sub">Sistema</span>
+    </div>
+    
+    <span class="left-panel-toggle">
+        <i class="fa fa-bars"></i>
+    </span>
+
+    <ul class="topbar-button list-unstyled">
+        <li class="notify-btn">
+            <a href="#" id="show-notify"><i class="fa fa-bell-o"></i><em id="total-tasks-qty" class="em-orange"></em></a>
+        </li>
+    </ul>
+
+    <ul class="topbar-user list-unstyled">
+        <li class="dropdown">
+            <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown">
+                <span class="topbar-username">{{ current_user.firstName }}<i class="fa fa-angle-down"></i></span>
+                <span class="topbar-userimage"><img src="{{ image }}" alt="user-image" /></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a href="{{ url_for('account.index') }}">
+                        Minha Conta
+                    </a>
+                    <a href="{{ url_for('configuration.index') }}">
+                        Configurações
+                    </a>
+                    <a href="{{ url_for('configuration.magento') }}">
+                        Configurações Magento
+                    </a>
+                    <a href="{{ url_for('bp.logout') }}">
+                        Sair
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>

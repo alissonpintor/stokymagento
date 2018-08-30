@@ -1,0 +1,167 @@
+.user-pic {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background-color: #337ab7;
+    background-image: url('../img/uploads/alisson.jpeg');
+    background-clip: content-box;
+    background-size: cover;
+    padding: 5px;
+    border: 2px solid #337ab7;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    min-height: 40px
+}
+
+.dz-error {
+  border: 2px solid red;
+  border-radius: 20px;
+}
+
+.dz-error:before {
+  content: '';
+  position: absolute;
+  z-index: 500;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255,0,0,0.8);
+  border-radius: 20px;
+}
+
+
+/* 
+ * === Loading animations ===
+ *  
+*/
+
+#loading {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    cursor: wait;
+}
+
+.lds-ring {
+    display: table;
+    margin: 10% auto;
+  }
+  .lds-ring .title {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    margin: 6px;
+    margin-left: -53px;
+    margin-top: -40px;
+    color: rgb(40, 146, 150);
+    font-weight: bold;
+    font-size: 18px;
+  }
+  .lds-ring div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    margin: 6px;
+    margin-left: -40px;
+    border: 6px solid rgb(40, 146, 150);
+    border-radius: 50%;
+    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: rgb(40, 146, 150) transparent transparent transparent;
+  }
+  .lds-ring div:nth-child(1) {
+    animation-delay: -0.45s;
+  }
+  .lds-ring div:nth-child(2) {
+    animation-delay: -0.3s;
+  }
+  .lds-ring div:nth-child(3) {
+    animation-delay: -0.15s;
+  }
+  @keyframes lds-ring {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+
+/**
+*  TASK LIST
+*/
+
+.tasks__list {
+  position: fixed;
+  z-index: 999;
+  background-color: #4f5564;
+  min-width: 300px;
+  min-height: 100px;
+  bottom: 10px;
+  right: 10px;
+  display: none;
+  color: #fff;
+  border: solid 1px #474c5a;
+  border-radius: 2px;
+  border-top-right-radius: 8px;
+  box-shadow: rgba(44, 51, 62, 0.644) 5px 5px 3px;
+}
+  .tasks__list .close__ {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: red;
+    width: 25px;
+    height: 25px;
+    text-align: center;
+    line-height: 20px;
+    font-size: 20px;
+    border-top: 2px rgb(230, 0, 0);
+    border-right: 2px rgb(230, 0, 0);
+    border-left: 2px rgb(110, 0, 0);
+    border-bottom: 2px rgb(110, 0, 0);
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 5px;
+  }
+    .tasks__list .close__ a {
+      color: #fff
+    }
+    .tasks__list .close__ a:hover {
+      color: #333641;
+      text-decoration: none;
+    }
+  .tasks__list h3 {
+    background-color: #333641;
+    color: #2dc0e8;
+    margin: 0;
+    padding: 10px;
+    padding-bottom: 15px;
+    text-align: center;
+    border-top-right-radius: 8px;
+  }
+  .tasks__list ul {
+    list-style: none;
+    margin: 0;
+    padding: 10px;
+  }
+    .tasks__list ul li {
+      margin: 0;
+      padding: 0;
+    }
+      .tasks__list ul li p {
+        padding-bottom: 2px;
+      }

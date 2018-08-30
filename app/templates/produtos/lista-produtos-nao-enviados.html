@@ -1,0 +1,51 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+<div class="col-xs-12" style="margin-bottom: 15px">
+    <div class="ultra-feature-container">
+        <div class="row">
+            
+            <div class="col-xs-12" style="margin-bottom: 15px">
+                <h3>{{ title }} <span class="label label-default">{{ subtitle }}</span></h3>
+                <hr>
+            </div>
+
+            {% if produtos %}
+            <div class="col-xs-12 col-md-12" style="margin-bottom: 15px">
+                
+                <table
+                    id="mytable"
+                    class="display" 
+                    data-toggle="table"
+                    data-search="true"
+                    data-show-columns="true"
+                    data-click-to-select="true"
+                    data-toolbar="#toolbar"
+                    data-show-export="true">
+                    <thead>
+                        <tr>
+                            <th>Codigo</th>
+                            <th>Descrição</th>
+                            <th>Marca</th>
+                            <th>Possui Imagem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in produtos %}
+                        <tr>
+                            <td>{{ p.idsubproduto }}</td>
+                            <td>{{ '%s'|format(p.descrresproduto) }}</td>
+                            <td>{{ p.produto.fabricante }}</td>
+                            <td>{{'Sim' if p.idsubproduto in imagens else 'Não' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

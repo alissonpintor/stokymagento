@@ -1,0 +1,53 @@
+body { 
+  width: 100%;
+height:100%;
+font-family: 'Open Sans', sans-serif;
+background: #45C7A6;
+background: -moz-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%),-moz-linear-gradient(top,  rgba(57,173,219,.25) 0%, rgba(42,60,87,.4) 100%), -moz-linear-gradient(-45deg,  #45C7A6 0%, #092756 100%);
+background: -webkit-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%), -webkit-linear-gradient(top,  rgba(57,173,219,.25) 0%,rgba(42,60,87,.4) 100%), -webkit-linear-gradient(-45deg,  #45C7A6 0%,#092756 100%);
+background: -o-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%), -o-linear-gradient(top,  rgba(57,173,219,.25) 0%,rgba(42,60,87,.4) 100%), -o-linear-gradient(-45deg,  #45C7A6 0%,#092756 100%);
+background: -ms-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%), -ms-linear-gradient(top,  rgba(57,173,219,.25) 0%,rgba(42,60,87,.4) 100%), -ms-linear-gradient(-45deg,  #45C7A6 0%,#092756 100%);
+background: -webkit-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%), linear-gradient(to bottom,  rgba(57,173,219,.25) 0%,rgba(42,60,87,.4) 100%), linear-gradient(135deg,  #45C7A6 0%,#092756 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3E1D6D', endColorstr='#092756',GradientType=1 );
+}
+
+.error-404 {
+    margin: 0 auto;
+    text-align: center;
+    padding: 0 5%
+  }
+  .error-404 .error-code {
+    bottom: 60%;
+    color: #B0E0E6;
+    font-size: 96px;
+    line-height: 100px;
+    font-weight: bold;
+    text-shadow: -1px -1px 1px rgba(0,0,0,0.1);
+  }
+  .error-404 .error-title {
+    color: #00BFFF;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+  }
+  .error-404 .error-desc {
+    font-size: 12px;
+    color: #fff;
+  }
+  .error-404 .error-message {
+    width: 40%; 
+    height: auto; 
+    margin: 10px auto; 
+    padding: 10px 0; 
+    background: rgba(150,0,0,0.3);
+  }
+  @media (max-width: 768px) {
+    .error-404 .error-message {
+      width: 80%; } }
+  .error-404 .m-b-10 {
+    margin-bottom: 10px!important;
+  }
+  .error-404 .m-b-20 {
+    margin-bottom: 20px!important;
+  }
+  .error-404 .m-t-20 {
+    margin-top: 20px!important;
+  }

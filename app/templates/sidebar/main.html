@@ -1,0 +1,151 @@
+<div id="u-left-panel" class="u-left-panel16">
+        <div class="panel-user-wrapper style1">
+            <div class="panel-user">
+                <img src="{{ image }}" alt="user-image" /> 
+            </div>
+            <div class="panel-user-name">
+                {{ current_user.firstName }}
+            </div>
+        </div>
+        <div id="u-left-menu">
+            <ul class="left-menu-wrapper list-unstyled">
+                <!-- DASHBOARD -->
+                <li class="left-menu-parent left-menu-active">
+                    <a href="{{ url_for('dashboard.index') }}">
+                        <span class="left-menu-link-icon">
+                            <i class="fa fa-dashboard"></i>
+                        </span>
+                        <span class="left-menu-link-info">
+                            <span class="link-name">DASHBOARD</span>
+                        </span>
+                    </a>
+                </li>
+
+                <!-- CONFIGURAÇÕES -->
+                <li class="left-menu-parent">
+                    <a href="#">
+                        <span class="left-menu-link-icon">
+                            <i class="fa fa-cogs"></i>
+                        </span>
+                        <span class="left-menu-link-info">
+                            <span class="link-name">CONFIGURAÇÕES</span>
+                            <span class="link-state"></span>
+                        </span>
+                    </a>
+                    <ul class="left-menu-sub list-unstyled">
+                        <li>
+                            <a href="{{ url_for('configuration.magento') }}">
+                                <span class="left-menu-link-info">
+                                    <span class="link-name">Parâmetros do Site</span>
+                                    <span class="link-state"></span>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- CATEGORIAS -->
+                <li class="left-menu-parent">
+                    <a href="#">
+                        <span class="left-menu-link-icon">
+                            <i class="fa fa-list"></i>
+                        </span>
+                        <span class="left-menu-link-info">
+                            <span class="link-name">CATEGORIAS</span>
+                            <span class="link-state"></span>
+                        </span>
+                    </a>
+                    <ul class="left-menu-sub list-unstyled">
+                        <li>
+                            <a href="{{ url_for('categorias.importar') }}">
+                                <span class="left-menu-link-info">
+                                    <span class="link-name">Importar do Site</span>
+                                    <span class="link-state"></span>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <!-- PRODUTOS -->
+                <li class="left-menu-parent">
+                    <a href="#">
+                        <span class="left-menu-link-icon">
+                            <i class="fa fa-cubes"></i>
+                        </span>
+                        <span class="left-menu-link-info">
+                            <span class="link-name">PRODUTOS</span>
+                            <span class="link-state"></span>
+                        </span>
+                    </a>
+                    <ul class="left-menu-sub list-unstyled">
+                        <li>
+                            <a href="{{ url_for('produtos.listar_nao_enviados') }}">
+                                <span class="left-menu-link-info">
+                                    <span class="link-name">Produtos Não Enviados</span>
+                                    <span class="link-state"></span>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('produtos.enviar_imagem') }}">
+                                <span class="left-menu-link-info">
+                                    <span class="link-name">Enviar Imagens</span>
+                                    <span class="link-state"></span>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('produtos.enviar_novos') }}">
+                                <span class="left-menu-link-info">
+                                    <span class="link-name">Enviar Produtos Novos</span>
+                                    <span class="link-state"></span>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('produtos.atualiza_estoque') }}">
+                                <span class="left-menu-link-info">
+                                    <span class="link-name">Atualizar Estoque</span>
+                                    <span class="link-state"></span>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('produtos.atualiza_precos') }}">
+                                <span class="left-menu-link-info">
+                                    <span class="link-name">Atualiza Preços</span>
+                                    <span class="link-state"></span>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('produtos.atualiza_promocoes') }}">
+                                <span class="left-menu-link-info">
+                                    <span class="link-name">Enviar Promoções</span>
+                                    <span class="link-state"></span>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('produtos.inativar') }}">
+                                <span class="left-menu-link-info">
+                                    <span class="link-name">Inativar Produtos</span>
+                                    <span class="link-state"></span>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('produtos.atualiza_base') }}">
+                                <span class="left-menu-link-info">
+                                    <span class="link-name">Atualizar Base Produtos</span>
+                                    <span class="link-state"></span>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul><!--Main ul-->
+        </div>
+    </div>

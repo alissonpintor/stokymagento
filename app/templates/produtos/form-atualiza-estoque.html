@@ -1,0 +1,63 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+<div class="col-xs-12" style="margin-bottom: 15px">
+    <div class="ultra-feature-container">
+        <div class="row">
+            
+            <div class="col-xs-12" style="margin-bottom: 15px">
+                <h3>{{ title }} <span class="label label-default">{{ subtitle }}</span> </h3>
+                <hr>
+            </div>
+
+            <div class="col-md-12" style="margin-bottom: 15px">
+                <form action="{{ url_for('produtos.atualiza_estoque') }}" method="POST">
+                    {{ form.csrf_token }} 
+
+                    <div class="form-group">
+                        <div class="col-md-2">
+                            {{ form.enviar(class="btn btn-primary")}}
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            {% if produtos %}
+            <div class="col-xs-12 col-md-12" style="margin-bottom: 15px">
+                
+                <table
+                    id="mytable"
+                    class="display" 
+                    data-toggle="table"
+                    data-search="true"
+                    data-show-columns="true"
+                    data-click-to-select="true"
+                    data-toolbar="#toolbar"
+                    data-show-export="true">
+                    <thead>
+                        <tr>
+                            <th data-sortable="true">Codigo</th>
+                            <th data-sortable="true">Descrição</th>
+                            <th data-sortable="true">Marca</th>
+                            <th data-sortable="true">Saldo Atual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in produtos %}
+                        <tr>
+                            <td>{{ p.idsubproduto }}</td>
+                            <td>{{ '%s'|format(p.descrresproduto) }}</td>
+                            <td>{{ p.produto.fabricante }}</td>
+                            <td>{{ p.saldo.qtdatualestoque }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
