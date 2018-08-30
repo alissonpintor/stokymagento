@@ -61,7 +61,7 @@ def magento():
         form.api_pass.data = config.api_pass
         form.magento_version.data = config.magento_version
         form.categoria_default.data = config.categoria_default
-        form.dtsincr_estoque.data = config.estoque_dtsincr
+        form.dtsincr_estoque.data = config.dtsincr_estoque
 
     if form.validate_on_submit():
         config.api_url = form.api_url.data
