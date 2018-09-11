@@ -411,6 +411,161 @@ var showTasks = (function () {
 });
 
 
+/**
+ *  Pagina: produtos/precos/atualizar
+ *      Tela onde á atualizados os preços dos produtos
+ */
+
+ var precoModel = (function(){
+    /**
+     * Representa a model que vai conter todos os objetos das tarefas
+     * em execução no backend
+     */
+    
+    var Task = function (taskId, name, total, current, complete, errorsCount, errors, status) {
+        this.id = taskId;
+        this.name = name;
+        this.total = total;
+        this.current = current;
+        this.complete = complete;
+        this.errorsCount = errorsCount;
+        this.errors = errors;
+        this.status = status;
+    };
+
+    var task;
+
+    return {
+        // 1) criar Task
+        createTask: function (data) {
+            task = new Task(
+                data.id,
+                data.name,
+                data.total,
+                data.current,
+                data.complete,
+                data.errors_count,
+                data.errors,
+                data.status
+            )
+        },
+
+        // 2) update task
+        updateTask: function (current, complete, errorsCount, errors, status) {
+            task.current = current;
+            task.complete = complete;
+            this.errorsCount = errorsCount;
+            task.errors = errors;
+            task.status = status;
+        },
+
+        // 3) get task
+        getTask: function () {
+            return task;
+        }
+    }
+ });
+
+ var precoUI = (function(){
+     var elements = {
+        taskTitle: document.getElementById('task-title'),
+        taskPanel: document.getElementById('task-panel'),
+        taskMessage: document.getElementById('task-message'),
+        progressBar: document.getElementById('preco-progress-bar'),
+        errorList: document.getElementById('error-list')
+     }
+
+     return {
+         updateTaskHTML: function (task) {
+            var currentPerc = parseInt((parseInt(task.current) * 100) / parseInt(task.total));
+
+            var concluidos = task.complete === undefined ? 0 : task.complete;
+            var erros = task.errorsCount === undefined ? 0 : task.errorsCount;
+
+            elements.taskMessage.innerHTML = `
+                <strong>Tarefas Executadas: </strong> &#32; ${task.current} &#32; de &#32; ${task.total} &#32;
+                <strong>Status: </strong> &#32; ${task.status} &#32;
+                <strong>Concluídos: </strong> &#32; ${concluidos} &#32;
+                <strong>Erros: </strong> &#32; ${erros}
+            `;
+            
+            elements.progressBar.style.width = `${currentPerc}%`;
+            elements.progressBar.innerHTML = `${currentPerc}%`;
+
+            if (task.errors.length > 0) {
+                elements.errorList.innerHTML = '';
+
+                task.errors.forEach( (error) => {
+                    var htmlError = document.createElement('li');
+                    htmlError.classList.add('list-group-item', 'list-group-item-danger');
+                    htmlError.innerText = error;
+                    elements.errorList.insertAdjacentElement('beforeend', htmlError);
+                });
+            }
+         },
+
+         addButton: function () {
+             var button = document.createElement('a');
+             button.href = window.location.pathname + '?clear_task=yes';
+             button.innerHTML = 'Atualizar Pagina';
+             button.classList.add('btn', 'btn-primary');
+
+             elements.taskPanel.insertAdjacentElement('beforeend', button);
+         },
+
+         updateTitleText: function (text) {
+            elements.taskTitle.innerText = text;
+         }
+     }
+ });
+
+ var precoControl = (function(){
+     var model = precoModel();
+     var ui = precoUI();
+    
+     // 1) iniciar a task a partir do id
+     var initTask = function (taskId) {
+        $.ajax({
+            url: `/produtos/task/${taskId}`,
+            success: (data) => {
+                model.createTask(data);
+                updateTasks();
+            }
+        });
+     };
+
+     // 2) atualizar o status da task
+     var updateTasks = function () {
+         var task = model.getTask();
+         ui.updateTaskHTML(task);
+
+         if (task.current < task.total) {
+             setTimeout( () => {
+                $.ajax({
+                    url: `/produtos/task/${task.id}`,
+                    success: (data) => {
+                        model.updateTask(data.current, data.complete, data.errors_count, data.errors, data.status)
+                        updateTasks();
+                    }
+                });
+             }, 1000);
+         } else {
+            ui.addButton();
+            ui.updateTitleText('Tarefa Completada');
+         }
+     };
+
+     // 3) exibir tarefa finalizada quando a task for encerrada
+
+     return {
+         init: function (taskId) {
+            initTask(taskId);
+            // model.createTask(data);
+         }
+     }
+ });
+
+
 /*
 *   Pagina: categorias/importar
 *       Tela onde são listadas as categorias importadas do site

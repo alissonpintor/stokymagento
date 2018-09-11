@@ -15,7 +15,9 @@ from app.core.api_magento.product import createProduct, updateImage
 from app.core.api_magento.product import updateProduct, productList
 
 # import tasks
-from app.core.tasks import enviar_produtos_task
+from app.application import mycelery
+from .tasks import atualiza_precos_task, atualiza_promocoes_task
+from .tasks import inativar_task, atualiza_estoque_task, enviar_novos_task
 
 # import das models usadas na view
 from app.models.produtos import CissProdutoGrade, MagProduto
@@ -34,13 +36,8 @@ from app.core.utils import read_images
 # import dos filtros de dados
 from .filter import buscar_produtos_novos, buscar_categorias_produtos
 from .filter import buscar_produtos_inativos, buscar_precos_produtos
-from .filter import buscar_data_estoque_produtos, buscar_produtos_promocao
+from .filter import buscar_estoque_produtos, buscar_produtos_promocao
 from .filter import buscar_produtos_nao_enviados, atualizar_base
-
-# import dos conversores de objetos magento
-from .convert import converte_precos_produtos, converteProduto
-from .convert import converte_produtos_promocao, converte_produtos_estoque
-from .convert import converte_produto_inativo
 
 
 locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
@@ -137,8 +134,16 @@ def enviar_novos():
     form = EnviarProdutosNovosForm()
     imagens = read_images().keys()
 
-    produtos = buscar_produtos_novos()
-    if not produtos:
+    task = current_app.enviar_novos_task
+    clear_task = request.args.get('clear_task', None)
+    if clear_task and clear_task == 'yes' and task.state == 'SUCCESS':
+        current_app.enviar_novos_task = task = None
+
+    produtos = None
+    if not task:
+        produtos = buscar_produtos_novos()
+
+    if not produtos and not task:
         warning('Não existem produtos para serem enviados para o site')
 
     categorias = buscar_categorias_produtos()
@@ -146,70 +151,31 @@ def enviar_novos():
         warning('Não existem categorias do site cadastradas')
 
     if form.validate_on_submit() and produtos and categorias:
-        enviados = 0
+        produtos_task = {}
 
-        Log.info(f'[ENVIAR NOVO] Iniciando envio dos produtos.')
-        for produto in produtos:
-            secao = int(request.form.get(f'secao-{produto.idsubproduto}', 0))
-            grupo = int(request.form.get(f'grupo-{produto.idsubproduto}', 0))
-            subgrupo = int(request.form.get(f'subgrupo-{produto.idsubproduto}', 0))
+        for p in produtos:
+            secao = int(request.form.get(f'secao-{p.idsubproduto}', 0))
+            grupo = int(request.form.get(f'grupo-{p.idsubproduto}', 0))
+            subgrupo = int(request.form.get(f'subgrupo-{p.idsubproduto}', 0))
 
             if secao and grupo and subgrupo:
-                Log.info(f'[ENVIAR NOVO] Iniciando envio do item {produto.idsubproduto}.')
-
                 categorias = [secao, grupo, subgrupo]
-                data = converteProduto(produto, categorias)
-                try:
-                    Log.info(f'[ENVIAR NOVO]------ Enviado para o site')
-                    createProduct(
-                        data['sku'],
-                        'simple',
-                        '4',
-                        data['data']
-                    )
-                    updateImage(
-                        data['image'],
-                        data['sku'],
-                        data['sku']
-                    )
+                produtos_task[p.idsubproduto] = categorias
 
-                    # altera o tipo do produto como enviado no erp
-                    Log.info(f'[ENVIAR NOVO]------ Salvando alterações no ERP')
-                    produto.idtipo = 2
-                    produto.update()
+        task = enviar_novos_task.apply_async(args=(produtos_task,))
+        current_app.enviar_novos_task = task
 
-                    Log.info(f'[ENVIAR NOVO]------ Salvando alterações no Integrador')
-                    mag_produto = MagProduto.by(sku=produto.idsubproduto)
-                    if not mag_produto:
-                        mag_produto = MagProduto()
-                        mag_produto.sku = produto.idsubproduto
-
-                    mag_produto.idsecao = categorias[0]
-                    mag_produto.idgrupo = categorias[1]
-                    mag_produto.idsubgrupo = categorias[2]
-
-                    # salva se o produto possui imagem ou nao
-                    possui_imagem = True if produto.idsubproduto in imagens else False
-                    mag_produto.atualiza_imagem = not possui_imagem
-                    mag_produto.possui_imagem = possui_imagem
-                    mag_produto.update()
-
-                    enviados += 1
-
-                except Exception as e:
-                    Log.error(f'[ENVIAR NOVO] Erro ao enviar o produto {p.idsubproduto} erro: {e}')
-
-        Log.info(f'[ENVIAR NOVO] Envio Finalizado.')
-
-        success(f'Foram enviados {enviados} item(s) para serem processados.')
+        success(f'Tarefa iniciada com sucesso')
         return redirect(url_for('produtos.enviar_novos'))
 
     result = {
-        'title': 'Enviar Produtos Novos',
+        'title': 'Produtos',
+        'subtitle': 'Enviar Novos',
         'form': form,
         'imagens': imagens,
         'produtos': produtos,
-        'categorias': categorias
+        'categorias': categorias,
+        'task': task
     }
     return render_template(template, **result)
 
@@ -237,43 +203,29 @@ def atualiza_estoque():
     template = 'produtos/form-atualiza-estoque.html'
     form = EnviarProdutosNovosForm()
     config = ConfigMagento.by_id(1)
-    datahora_atual = datetime.now()
-    produtos = buscar_data_estoque_produtos(dthr_sincr=config.dtsincr_estoque)
+
+    task = current_app.atualiza_estoque_task
+    clear_task = request.args.get('clear_task', None)
+    if clear_task and clear_task == 'yes' and task.state == 'SUCCESS':
+        current_app.atualiza_estoque_task = task = None
+
+    produtos = None
+    if not task:
+        produtos = buscar_estoque_produtos(dthr_sincr=config.dtsincr_estoque)
 
     if form.validate_on_submit() and produtos:
-        Log.info(f'[ATUALIZAR ESTOQUE] Iniciando envio dos produtos.')
+        task = atualiza_estoque_task.apply_async()
+        current_app.atualiza_estoque_task = task
 
-        mag_produtos = converte_produtos_estoque(produtos)
-        total = len(mag_produtos)
-        atualizados = 0
-
-        for p in mag_produtos:
-            try:
-                Log.info(f"[ATUALIZAR ESTOQUE] Iniciando envio do item {p['sku']}.")
-                updateProduct(
-                    sku=p['sku'],
-                    data=p['data']
-                )
-                Log.info(f'[ATUALIZAR ESTOQUE]------ Enviado para o site')
-                atualizados += 1
-            
-            except Exception as e:
-                Log.error(
-                    f'[ATUALIZAR ESTOQUE] Erro ao enviar o produto {p["sku"]} erro: {e}')
-
-        Log.info(f'[ATUALIZAR ESTOQUE]------ Salvando alterações no Integrador')
-        config.dtsincr_estoque = datahora_atual
-        config.update()
-        Log.info(f'[ATUALIZAR ESTOQUE] Envio Finalizado.')
-
-        success(f'Foram atualizados {atualizados} item(s) de {total}')
+        success(f'Tarefa iniciada com sucesso')
         return redirect(url_for('produtos.atualiza_estoque'))
 
     result = {
         'title': 'Produtos',
         'subtitle': 'Atualizar Estoque',
         'form': form,
-        'produtos': produtos
+        'produtos': produtos,
+        'task': task
     }
     return render_template(template, **result)
 
@@ -287,43 +239,30 @@ def atualiza_precos():
 
     template = 'produtos/form-envia-precos.html'
     config = ConfigMagento.by_id(1)
-    dthr_sincr = datetime.now()
-    produtos = buscar_precos_produtos(dthr_sincr=config.dtsincr_preco)
+
+    task = current_app.atualiza_precos_task
+    clear_task = request.args.get('clear_task', None)
+    if clear_task and clear_task == 'yes' and task.state == 'SUCCESS':
+        current_app.atualiza_precos_task = task = None
+
+    produtos = None
+    if not task:
+        produtos = buscar_precos_produtos(dthr_sincr=config.dtsincr_preco)
+
     form = EnviarProdutosNovosForm()
 
     if form.validate_on_submit() and produtos:
-        Log.info(f'[PREÇO] Iniciando o envio dos produtos.')
+        task_id = atualiza_precos_task.apply_async()
+        current_app.atualiza_precos_task = task_id
 
-        mag_produtos = converte_precos_produtos(produtos)
-        total = len(mag_produtos)
-        atualizados = 0
-
-        for p in mag_produtos:
-            try:
-                Log.info(f'[PREÇO] Iniciando o envio do item {p["sku"]}.')
-                updateProduct(
-                    sku=p['sku'],
-                    data=p['data']
-                )
-                Log.info(f'[PREÇO]------ Enviado para o site')
-                atualizados += 1
-
-            except Exception as e:
-                Log.error(
-                    f'[PREÇO] Erro ao enviar o produto {p["sku"]} erro: {e}')
-
-        Log.info(f'[PREÇO] Envio de produtos finalizado.')
-        Log.info(f'[PREÇO] Salvando data e hora da sincronização.')
-        config.dtsincr_preco = dthr_sincr
-        config.update()
-
-        success(f'Foram atualizados {atualizados} item(s) de {total}')
+        success(f'Tarefa iniciada com sucesso')
         return redirect(url_for('produtos.atualiza_precos'))
 
     result = {
         'title': 'Produtos:',
         'subtitle': 'Atualizar Preços',
         'produtos': produtos,
+        'task': task,
         'form': form
     }
     return render_template(template, **result)
@@ -338,43 +277,30 @@ def atualiza_promocoes():
 
     template = 'produtos/form-envia-promocoes.html'
     config = ConfigMagento.by_id(1)
-    produtos = buscar_produtos_promocao(dthr_sincr=config.dtsincr_promocao)
-    dthr_sincr = datetime.now()
+
+    task = current_app.atualiza_promocoes_task
+    clear_task = request.args.get('clear_task', None)
+    if clear_task and clear_task == 'yes' and task.state == 'SUCCESS':
+        current_app.atualiza_promocoes_task = task = None
+
+    produtos = None
+    if not task:
+        produtos = buscar_produtos_promocao(dthr_sincr=config.dtsincr_promocao)
+
     form = EnviarProdutosNovosForm()
 
     if form.validate_on_submit():
-        Log.info(f'[PROMOÇÃO] Iniciando o envio dos produtos.')
+        task = atualiza_promocoes_task.apply_async()
+        current_app.atualiza_promocoes_task = task
 
-        mag_produtos = converte_produtos_promocao(produtos)
-        total = len(mag_produtos)
-        atualizados = 0
-
-        for p in mag_produtos:
-            Log.info(f'[PROMOÇÃO] Iniciando o envio do item {p["sku"]}.')
-            try:
-                updateProduct(
-                    p['sku'],
-                    p['data']
-                )
-                Log.info(f'[PROMOÇÃO]------ Enviado para o site')
-                atualizados += 1
-
-            except Exception as e:
-                Log.error(
-                    f'[PREÇO] Erro ao enviar o produto {p["sku"]} erro: {e}')
-
-        Log.info(f'[PROMOÇÃO] Envio de produtos finalizado.')
-        Log.info(f'[PROMOÇÃO] Salvando data e hora da sincronização.')
-        config.dtsincr_promocao = dthr_sincr
-        config.update()
-
-        success(f'Foram atualizados {atualizados} item(s) de {total}')
+        success(f'Tarefa iniciada com sucesso')
         return redirect(url_for('produtos.atualiza_promocoes'))
 
     result = {
         'title': 'Produtos',
         'subtitle': 'Atualizar Promoções',
         'produtos': produtos,
+        'task': task,
         'form': form
     }
     return render_template(template, **result)
@@ -388,43 +314,31 @@ def inativar():
     """
 
     template = 'produtos/form-inativar-produtos.html'
+
+    task = current_app.inativar_task
+    clear_task = request.args.get('clear_task', None)
+    if clear_task and clear_task == 'yes' and task.state == 'SUCCESS':
+        current_app.inativar_task = task = None
+
+    produtos = None
+    if not task:
+        produtos = buscar_produtos_inativos()
+
     form = EnviarProdutosNovosForm()
-    produtos = buscar_produtos_inativos()
 
     if form.validate_on_submit() and produtos:
-        Log.info(f'[INATIVAR] Iniciando atualizaçao dos produtos.')
+        task = inativar_task.apply_async()
+        current_app.inativar_task = task
 
-        for p in produtos:
-            Log.info(f'[INATIVAR] Iniciando atualização do item {p.idsubproduto}.')
-
-            try:
-                Log.info(f'[INATIVAR]------ Enviado para o site')
-                produto = converte_produto_inativo(p)
-                updateProduct(
-                    sku=produto['sku'],
-                    data=produto['data']
-                )
-
-                mag_produto = MagProduto.by(sku=p.idsubproduto)
-                if mag_produto:
-                    Log.info(f'[INATIVAR]------ Salvando alterações no Integrador')
-                    mag_produto.inativo = True
-                    db.session.add(mag_produto)
-                    db.session.commit()
-
-                Log.info(f'[INATIVAR]------ Salvando alterações no ERP')
-                p.idtipo = 3
-                p.update()
-
-            except Exception as e:
-                Log.error(f'[INATIVAR] Erro ao enviar o produto {p.idsubproduto} erro: {e}')
-
-        Log.info(f'[INATIVAR] Finalizando atualizaçao dos produtos.')
+        success(f'Tarefa iniciada com sucesso')
+        return redirect(url_for('produtos.inativar'))
 
     result = {
-        'title': 'Inativar Produtos',
+        'title': 'Produtos',
+        'subtitle': 'Inativar',
         'form': form,
-        'produtos': produtos
+        'produtos': produtos,
+        'task': task
     }
     return render_template(template, **result)
 
@@ -469,3 +383,27 @@ def validar_nome_imagem(filename):
             return True
 
     return False
+
+
+@login_required
+@produtos.route('/task/<id>', methods=['GET'])
+def get_task(id):
+    """
+        Retorna a task a partir do id
+    """
+
+    task = mycelery.AsyncResult(id)
+
+    if task.info:
+        return jsonify({
+            'id': task.id,
+            'name': task.info['name'],
+            'total': task.info['total'],
+            'current': task.info['current'],
+            'complete': task.info['complete'],
+            'errors': task.info['errors'],
+            'errors_count': task.info['errors_count'],
+            'status': task.info['status']
+        })
+
+    return 'Não existem dados', 400

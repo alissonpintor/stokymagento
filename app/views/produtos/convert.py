@@ -12,19 +12,24 @@ from app.core.api_magento.objects import Stock, Product, Attribute
 from app.core.utils import read_images
 
 
-def converte_produto_inativo(produto):
+def converte_produto_inativo(produtos):
     """
-        Converte o produto no formato magento para enviar ao site
+        Converte os produtos no formato magento para enviar ao site
     """
 
-    data = Product(validate_requireds=False)
-    data.sku = produto.idsubproduto
-    data.status = '0'
+    result = []
 
-    return {
-        'sku': str(produto.idsubproduto),
-        'data': data.to_soap()
-    }
+    for p in produtos:
+        mag_product = Product(validate_requireds=False)
+        mag_product.sku = p.idsubproduto
+        mag_product.status = 0
+
+        result.append({
+            'sku': str(p.idsubproduto),
+            'data': mag_product.to_soap()
+        })
+
+    return result
 
 
 def converte_produtos_estoque(produtos):
@@ -50,7 +55,7 @@ def converte_produtos_estoque(produtos):
     return result
 
 
-def converteProduto(item, categorias):
+def converte_produto_novo(item, categorias):
     """
         recebe um produto e suas categorias
         e o converte para Magento Object para ser

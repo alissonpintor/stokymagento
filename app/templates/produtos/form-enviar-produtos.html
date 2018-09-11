@@ -6,10 +6,23 @@
         <div class="row">
             
             <div class="col-xs-12" style="margin-bottom: 15px">
-                <h3>{{ title }}</h3>
+                    <h3>{{ title }} <span class="label label-default">{{ subtitle }}</span> </h3>
                 <hr>
             </div>
 
+            {% if task %}
+                <div id="task-panel" class="col-xs-12 col-md-12" style="margin-bottom: 15px">
+                    <h3 id="task-title">Existe uma tarefa em execução</h3>
+                    <div id="task-message" class="alert alert-info" role="alert"></div>
+                    <div class="progress">
+                        <div id="preco-progress-bar" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="100" style="width: ">
+                            ${currentPerc}%
+                        </div>
+                    </div>
+
+                    <ul id="error-list" class="list-group"></ul>
+                </div>
+            {% else %}
             <div class="col-md-12" style="margin-bottom: 15px">
                 <form action="" method="POST" id="form-enviar-produto">
                     {{ form.csrf_token }} 
@@ -20,70 +33,76 @@
                         </div>
                     </div>
 
-            {% if produtos %}
-            <div class="col-xs-12 col-md-12" style="margin-bottom: 15px">
-                
-                <table
-                    id="mytable"
-                    class="display" 
-                    data-toggle="table"
-                    data-search="true"
-                    data-show-columns="true"
-                    data-click-to-select="true"
-                    data-toolbar="#toolbar"
-                    data-show-export="true">
-                    <thead>
-                        <tr>
-                            <th>Codigo</th>
-                            <th>Descrição</th>
-                            <th>Marca</th>
-                            <th>Seção</th>
-                            <th>Grupo</th>
-                            <th>SubGrupo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for p in produtos %}
-                        <tr {{'class=danger' if p.idsubproduto not in imagens }}>
-                            <td>{{ p.idsubproduto }}</td>
-                            <td>{{ '%s'|format(p.descrresproduto) }}</td>
-                            <td>{{ p.produto.fabricante }}</td>
-                            <td>
-                                <select name="secao-{{ p.idsubproduto }}" class="secoes" id="secao-{{ p.idsubproduto }}">
-                                    <option value="0">Selecione</option>
-                                    {% for c in categorias %}
-                                    <option value="{{ c.category_id }}">{{ c.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </td>
-                            <td>
-                                <select name="grupo-{{ p.idsubproduto }}" class="grupos" id="grupo-{{ p.idsubproduto }}" disabled>
-                                </select>
-                            </td>
-                            <td>
-                                <select name="subgrupo-{{ p.idsubproduto }}" class="subgrupos" id="subgrupo-{{ p.idsubproduto }}" disabled>
-                                </select>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            
+                    {% if produtos %}
+                    <div class="col-md-12" style="margin-bottom: 15px">
+                        
+                        <table
+                            id="mytable"
+                            class="display" 
+                            data-toggle="table"
+                            data-search="true"
+                            data-show-columns="true"
+                            data-click-to-select="true"
+                            data-toolbar="#toolbar"
+                            data-show-export="true">
+                            <thead>
+                                <tr>
+                                    <th>Codigo</th>
+                                    <th>Descrição</th>
+                                    <th>Marca</th>
+                                    <th>Seção</th>
+                                    <th>Grupo</th>
+                                    <th>SubGrupo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in produtos %}
+                                <tr {{'class=danger' if p.idsubproduto not in imagens }}>
+                                    <td>{{ p.idsubproduto }}</td>
+                                    <td>{{ '%s'|format(p.descrresproduto) }}</td>
+                                    <td>{{ p.produto.fabricante }}</td>
+                                    <td>
+                                        <select name="secao-{{ p.idsubproduto }}" class="secoes" id="secao-{{ p.idsubproduto }}">
+                                            <option value="0">Selecione</option>
+                                            {% for c in categorias %}
+                                            <option value="{{ c.category_id }}">{{ c.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select name="grupo-{{ p.idsubproduto }}" class="grupos" id="grupo-{{ p.idsubproduto }}" disabled>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select name="subgrupo-{{ p.idsubproduto }}" class="subgrupos" id="subgrupo-{{ p.idsubproduto }}" disabled>
+                                        </select>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    
+                    {% else %}
+                    <div class="col-md-12" style="margin-bottom: 15px">
+                        <h3 class="text-info text-center">Não existem produtos para serem atualizados.</h3>
+                    </div>
+                    {% endif %}
+                </form>
             </div>
             {% endif %}
-        </form>
-    </div>
 
         </div>
     </div>
 </div>
 {% endblock %}
 
-<!-- block script -->
 {% block scripts %}
-{% if tasks_url %}
+{% if task %}
 <script>
-    showTasks().addTasks({{ tasks_url|tojson }});
+    $(document).ready(function () {
+        var iniciar = precoControl();
+        iniciar.init('{{ task.id }}');
+    });
 </script>
 {% endif %}
 {% endblock %}

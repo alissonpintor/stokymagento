@@ -123,7 +123,7 @@ def buscar_produtos_enviados_ativos():
     return produto
 
 
-def buscar_data_estoque_produtos(dthr_sincr=None):
+def buscar_estoque_produtos(dthr_sincr=None):
     """
         Busca as datas de estoque de produtos
     """
@@ -235,7 +235,7 @@ def buscar_produtos_promocao(dthr_sincr=None):
     )
     produtos = produtos.union(produtos_removidos).all()
 
-    return produtos
+    return produtos[:15]
 
 
 def verificaCategoriasProdutos():

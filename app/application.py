@@ -20,10 +20,11 @@ app.config.from_object(app_config['dev'])
 app.config.from_pyfile('config.py')
 
 with app.app_context():
-    current_app.tasks = []
-    current_app.task = {
-        'produtos': []
-    }
+    current_app.atualiza_precos_task = None
+    current_app.atualiza_promocoes_task = None
+    current_app.inativar_task = None
+    current_app.atualiza_estoque_task = None
+    current_app.enviar_novos_task = None
 
 # incia a flask-restful API
 api = Api(app)
@@ -135,17 +136,6 @@ def verificar_parametros_magento():
         return make_response(magento())
 
 
-@app.before_request
-def update_tasks():
-    """
-        Verifica se existem tarefas em execução em segundo plano
-        e mantem a variavek task em current_app atualizada para
-        todos os usuários.
-    """
-    if current_app.task['produtos']:
-        pass
-
-
 # Configura o Flask-Uploads para upload de arquivos e fotos
 configure_uploads(app, (imageSet, csvSet))
 
@@ -167,19 +157,15 @@ def get_locale():
 
 
 @app.before_request
-def verify_tasks():
-    from celery.result import AsyncResult
-    
-    task = tasks.MagTasks.get_active_tasks()
-    if not task:
-        return
+def verificar_tasks():
+    """
+        Verifica se existe alguma task e se ela esta em execução
+    """
 
-    g.task_qty = len(task)
-    task_list = []
+    task = current_app.atualiza_precos_task
+    if task and task.state in ('FAILURE'):
+        current_app.atualiza_precos_task = None
 
-    for t in task:
-        task = mycelery.AsyncResult(t.schedule)
-        task_list.append(task)
-        print(task.status)
-    
-    g.tasks = task_list
+    task = current_app.atualiza_promocoes_task
+    if task and task.state in ('FAILURE'):
+        current_app.atualiza_promocoes_task = None

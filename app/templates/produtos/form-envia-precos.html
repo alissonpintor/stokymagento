@@ -10,6 +10,19 @@
                 <hr>
             </div>
 
+            {% if task %}
+            <div id="task-panel" class="col-xs-12 col-md-12" style="margin-bottom: 15px">
+                <h3 id="task-title">Existe uma tarefa em execução</h3>
+                <div id="task-message" class="alert alert-info" role="alert"></div>
+                <div class="progress">
+                    <div id="preco-progress-bar" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="100" style="width: ">
+                        ${currentPerc}%
+                    </div>
+                </div>
+
+                <ul id="error-list" class="list-group"></ul>
+            </div>
+            {% else %}
             <div class="col-md-12" style="margin-bottom: 15px">
                 <form action="{{ url_for('produtos.atualiza_precos') }}" method="POST">
                     {{ form.csrf_token }} 
@@ -55,9 +68,26 @@
                 </table>
             
             </div>
+            {% else %}
+            <div class="col-md-12" style="margin-bottom: 15px">
+                <h3 class="text-info text-center">Não existem produtos para serem atualizados.</h3>
+            </div>
             {% endif %}
+            
+            {% endif %}            
 
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{% if task %}
+<script>
+    $(document).ready(function () {
+        var iniciar = precoControl();
+        iniciar.init('{{ task.id }}');
+    });
+</script>
+{% endif %}
 {% endblock %}
