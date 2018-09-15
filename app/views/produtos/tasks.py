@@ -411,7 +411,6 @@ def inativar_task(self):
     config = ConfigMagento.by_id(1)
     dthr_sincr = datetime.now()
     produtos = buscar_produtos_inativos()
-    produtos_erp = {int(p.idsubproduto): p for p in produtos}
     produtos = converte_produto_inativo(produtos)
 
     # Variáveis utilizadas para atualizar a barra de
@@ -449,7 +448,7 @@ def inativar_task(self):
             # Grava no ERP que o produto foi inativado no site
             with app.app_context():
                 db.engine.dispose()
-                produto_erp = produtos_erp.get(int(p["sku"]), None)
+                produto_erp = CissProdutoGrade.by(idsubproduto=int(p["sku"]))
 
                 if produto_erp:
                     # pega o tipo e se esta inativo do ERP
