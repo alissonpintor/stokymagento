@@ -51,6 +51,7 @@
                                 <th data-sortable="true">Codigo</th>
                                 <th data-sortable="true">Descrição</th>
                                 <th data-sortable="true">Marca</th>
+                                <th data-sortable="true">Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -59,6 +60,7 @@
                                 <td>{{ p.idsubproduto }}</td>
                                 <td>{{ '%s %s'|format(p.produto.descrcomproduto, p.subdescricao) }}</td>
                                 <td>{{ p.produto.fabricante }}</td>
+                                <td>{{ 'Inativado' if p.flaginativo == 'T' else 'Reativado' }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

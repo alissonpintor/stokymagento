@@ -149,6 +149,8 @@ def uploaded_file(path, filename):
 
 # Configura o Babel para traduções
 babel = Babel(app)
+
+
 @babel.localeselector
 def get_locale():
     # Realiza a tradução do Flask-WTF
@@ -162,10 +164,27 @@ def verificar_tasks():
         Verifica se existe alguma task e se ela esta em execução
     """
 
-    task = current_app.atualiza_precos_task
-    if task and task.state in ('FAILURE'):
+    if task_is_failure(current_app.atualiza_precos_task):
         current_app.atualiza_precos_task = None
 
-    task = current_app.atualiza_promocoes_task
-    if task and task.state in ('FAILURE'):
+    if task_is_failure(current_app.atualiza_promocoes_task):
         current_app.atualiza_promocoes_task = None
+
+    if task_is_failure(current_app.inativar_task):
+        current_app.inativar_task = None
+
+    if task_is_failure(current_app.atualiza_estoque_task):
+        current_app.atualiza_estoque_task = None
+
+    if task_is_failure(current_app.enviar_novos_task):
+        current_app.enviar_novos_task = None
+
+
+def task_is_failure(task):
+    """
+        Se a Task esta com status FAILURE configura como None
+    """
+
+    if task and task.state == 'FAILURE':
+        return True
+    return False

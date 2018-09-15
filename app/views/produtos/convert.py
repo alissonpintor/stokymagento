@@ -22,7 +22,7 @@ def converte_produto_inativo(produtos):
     for p in produtos:
         mag_product = Product(validate_requireds=False)
         mag_product.sku = p.idsubproduto
-        mag_product.status = 0
+        mag_product.status = 0 if p.flaginativo == 'T' else 1
 
         result.append({
             'sku': str(p.idsubproduto),

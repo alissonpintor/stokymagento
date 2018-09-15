@@ -413,7 +413,7 @@ def inativar_task(self):
     produtos = buscar_produtos_inativos()
     produtos_erp = {int(p.idsubproduto): p for p in produtos}
     produtos = converte_produto_inativo(produtos)
-    
+
     # Variáveis utilizadas para atualizar a barra de
     # progresso na tela do usuário
     concluidos = 0
@@ -452,7 +452,15 @@ def inativar_task(self):
                 produto_erp = produtos_erp.get(int(p["sku"]), None)
 
                 if produto_erp:
-                    produto_erp.idtipo = 3
+                    # pega o tipo e se esta inativo do ERP
+                    inativo, tipo = produto_erp.idtipo, produto_erp.flaginativo
+
+                    # verifica se o produto foi ativado ou inativado no site
+                    if tipo == 2 and inativo == 'F':
+                        produto_erp.idtipo = 3
+                    elif tipo == 3 and inativo == 'T':
+                        produto_erp.idtipo = 2
+
                     produto_erp.update()
 
                     Log.info(f'[INATIVAR]------ Gravado no ERP como inativo')

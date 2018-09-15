@@ -102,25 +102,26 @@ def buscar_produtos_inativos():
         Busca os produtos que estao no site e inativos no ERP
     """
 
-    produtos = buscarProdutos(inativo=True)
-    produtos = produtos.filter(CissProdutoGrade.idtipo == 2)
-    produtos = produtos.order_by(CissProdutoGrade.descrresproduto)
-    produtos = produtos.all()
+    produtos_inativos = CissProdutoGrade.query.filter(
+        CissProdutoGrade.flaginativo == 'T',
+        CissProdutoGrade.idmodelo == 4,
+        CissProdutoGrade.idtipo == 2
+    ).order_by(
+        CissProdutoGrade.descrresproduto
+    )
 
-    return produtos
+    produtos_reativados = CissProdutoGrade.query.filter(
+        CissProdutoGrade.flaginativo == 'F',
+        CissProdutoGrade.idmodelo == 4,
+        CissProdutoGrade.idtipo == 3
+    ).order_by(
+        CissProdutoGrade.descrresproduto
+    )
 
+    produtos_inativos = produtos_inativos.union(produtos_reativados)
+    produtos_inativos = produtos_inativos.all()
 
-def buscar_produtos_enviados_ativos():
-    """
-        Busca os produtos que estao no site e inativos no ERP
-    """
-
-    produto = buscarProdutos()
-    produto = produto.filter(CissProdutoGrade.idtipo == 2)
-    produto = produto.order_by(CissProdutoGrade.descrresproduto)
-    produto = produto.all()
-
-    return produto
+    return produtos_inativos
 
 
 def buscar_estoque_produtos(dthr_sincr=None):
