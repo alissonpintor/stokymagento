@@ -455,9 +455,9 @@ def inativar_task(self):
                     inativo, tipo = produto_erp.idtipo, produto_erp.flaginativo
 
                     # verifica se o produto foi ativado ou inativado no site
-                    if tipo == 2 and inativo == 'F':
+                    if tipo == 2 and inativo == 'T':
                         produto_erp.idtipo = 3
-                    elif tipo == 3 and inativo == 'T':
+                    elif tipo == 3 and inativo == 'F':
                         produto_erp.idtipo = 2
 
                     produto_erp.update()
