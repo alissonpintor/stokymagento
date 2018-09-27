@@ -6,7 +6,7 @@ from app import db
 from app.models.config import ConfigMagento
 from app.models.categorias import MagCategorias
 from app.models.produtos import MagCategoriaProduto
-from app.models.produtos import CissProdutoGrade
+from app.models.produtos import CissProdutoGrade, MagProduto
 from app.models.produtos import CissProdutoEstoque, CissProdutoPreco
 
 
@@ -237,6 +237,21 @@ def buscar_produtos_promocao(dthr_sincr=None):
     produtos = produtos.union(produtos_removidos).all()
 
     return produtos[:15]
+
+
+def buscar_imagens_alteradas():
+    """
+        Busca os produtos que estao no site e tiveram as imagens alteradas
+    """
+
+    produtos = MagProduto.query.filter(
+        MagProduto.atualiza_imagem == True
+    ).all()
+
+    skus = [p.sku for p in produtos]
+    produtos = buscarProdutos(codigo=skus).all()
+
+    return produtos
 
 
 def verificaCategoriasProdutos():

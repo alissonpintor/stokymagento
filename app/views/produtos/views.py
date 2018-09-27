@@ -18,6 +18,7 @@ from app.core.api_magento.product import updateProduct, productList
 from app.application import mycelery
 from .tasks import atualiza_precos_task, atualiza_promocoes_task
 from .tasks import inativar_task, atualiza_estoque_task, enviar_novos_task
+from .tasks import atualiza_imagem_task
 
 # import das models usadas na view
 from app.models.produtos import CissProdutoGrade, MagProduto
@@ -38,6 +39,7 @@ from .filter import buscar_produtos_novos, buscar_categorias_produtos
 from .filter import buscar_produtos_inativos, buscar_precos_produtos
 from .filter import buscar_estoque_produtos, buscar_produtos_promocao
 from .filter import buscar_produtos_nao_enviados, atualizar_base
+from .filter import buscar_imagens_alteradas
 
 
 locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
@@ -119,6 +121,47 @@ def enviar_imagem():
 
     result = {
         'title': 'Enviar Imagens Produtos'
+    }
+    return render_template(template, **result)
+
+
+@login_required
+@produtos.route('/imagens/atualizar', methods=['GET', 'POST'])
+def atualiza_imagem():
+    """
+        Envia os produtos que estão no site e tiveram as imagens alteradas
+    """
+
+    template = 'produtos/form-atualiza-imagens.html'
+    form = EnviarProdutosNovosForm()
+
+    task = current_app.atualiza_imagem_task
+    clear_task = request.args.get('clear_task', None)
+    if clear_task and clear_task == 'yes':
+        if task and task.state == 'SUCCESS':
+            current_app.atualiza_imagem_task = task = None
+        return redirect(url_for('produtos.atualiza_imagem'))
+
+    produtos = None
+    if not task:
+        produtos = buscar_imagens_alteradas()
+
+    if not produtos and not task:
+        warning('Não existem produtos para serem enviados para o site')
+
+    if form.validate_on_submit() and produtos:
+        task = atualiza_imagem_task.apply_async()
+        current_app.atualiza_imagem_task = task
+
+        success(f'Tarefa iniciada com sucesso')
+        return redirect(url_for('produtos.atualiza_imagem'))
+
+    result = {
+        'title': 'Produtos',
+        'subtitle': 'Atualizar Imagens',
+        'form': form,
+        'produtos': produtos,
+        'task': task
     }
     return render_template(template, **result)
 

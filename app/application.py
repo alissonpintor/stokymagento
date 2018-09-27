@@ -16,7 +16,7 @@ from app.core.celery_app import make_celery
 # def create_app():
 
 app = Flask(__name__, instance_relative_config=True)
-app.config.from_object(app_config['dev'])
+app.config.from_object(app_config['prod'])
 app.config.from_pyfile('config.py')
 
 with app.app_context():
@@ -25,6 +25,7 @@ with app.app_context():
     current_app.inativar_task = None
     current_app.atualiza_estoque_task = None
     current_app.enviar_novos_task = None
+    current_app.atualiza_imagem_task = None
 
 # incia a flask-restful API
 api = Api(app)
@@ -178,6 +179,9 @@ def verificar_tasks():
 
     if task_is_failure(current_app.enviar_novos_task):
         current_app.enviar_novos_task = None
+
+    if task_is_failure(current_app.atualiza_imagem_task):
+        current_app.atualiza_imagem_task = None
 
 
 def task_is_failure(task):

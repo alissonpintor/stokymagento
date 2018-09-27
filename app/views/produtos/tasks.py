@@ -32,9 +32,6 @@ from .convert import converte_produto_inativo, converte_produtos_estoque
 from .convert import converte_produto_novo
 
 
-__all__ = ('enviar_produtos_task')
-
-
 # Comando Celery -->> celery -A app.application.mycelery worker -E -B
 def format_task_name(task_name):
     """
@@ -58,6 +55,85 @@ def format_task_name(task_name):
     formated_name = ' '.join(formated_name)
 
     return formated_name
+
+
+@mycelery.task(bind=True, name='atualiza-imagem')
+def atualiza_imagem_task(self):
+    """
+        Usado para atualizar as imagens de produtos que ja estão no site
+    """
+
+    with app.app_context():
+        Log.info(f'[IMAGENS] Iniciando o envio dos produtos.')
+        db.engine.dispose()
+
+        produtos = MagProduto.query.filter(
+            MagProduto.atualiza_imagem == True
+        ).all()
+
+        imagens = read_images()
+        concluidos = 0
+        erros_count = 0
+        erros = []
+        count = 1
+        total = len(produtos)
+
+        for p in produtos:
+            Log.info(f'[IMAGENS] Iniciando o envio do item {p.sku}.')
+
+            self.update_state(
+                state='PROGRESS',
+                meta={
+                    'name': format_task_name(self.name),
+                    'complete': concluidos,
+                    'errors_count': erros_count,
+                    'errors': erros,
+                    'current': count,
+                    'total': total,
+                    'status': f'Enviando o produto {p.sku}'
+                }
+            )
+
+            try:
+                imagem = imagens.get(p.sku, None)
+                if not imagem:
+                    Log.info(f'[IMAGENS]------ Produto sem imagem')
+                    count += 1
+                    continue
+
+                updateImage(
+                    imagem,
+                    str(p.sku),
+                    str(p.sku)
+                )
+                Log.info(f'[IMAGENS]------ Imagem enviada com sucesso')
+
+                p.atualiza_imagem = False
+                p.update()
+                Log.info(f'[IMAGENS]------ Produto Atulizado no Integrador')
+
+                concluidos += 1
+
+            except Exception as e:
+                erros_count += 1
+                erros.append(f'Produto: {p.sku} -------- Erro: {e}')
+
+                Log.error(
+                    f'[IMAGENS] Erro ao enviar o produto {p.sku} erro: {e}')
+
+            count += 1
+
+        Log.info(f'[IMAGENS] Envio de produtos finalizado.')
+
+        return {
+            'name': format_task_name(self.name),
+            'complete': concluidos,
+            'errors_count': erros_count,
+            'errors': erros,
+            'current': total,
+            'total': total,
+            'status': 'complete'
+        }
 
 
 @mycelery.task(bind=True, name='enviar-produtos')
