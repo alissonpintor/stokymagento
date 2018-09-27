@@ -136,8 +136,10 @@ def enviar_novos():
 
     task = current_app.enviar_novos_task
     clear_task = request.args.get('clear_task', None)
-    if clear_task and clear_task == 'yes' and task.state == 'SUCCESS':
-        current_app.enviar_novos_task = task = None
+    if clear_task and clear_task == 'yes':
+        if task and task.state == 'SUCCESS':
+            current_app.inativar_task = task = None
+        return redirect(url_for('produtos.enviar_novos'))
 
     produtos = None
     if not task:
@@ -206,8 +208,10 @@ def atualiza_estoque():
 
     task = current_app.atualiza_estoque_task
     clear_task = request.args.get('clear_task', None)
-    if clear_task and clear_task == 'yes' and task.state == 'SUCCESS':
-        current_app.atualiza_estoque_task = task = None
+    if clear_task and clear_task == 'yes':
+        if task and task.state == 'SUCCESS':
+            current_app.inativar_task = task = None
+        return redirect(url_for('produtos.atualiza_estoque'))
 
     produtos = None
     if not task:
@@ -242,8 +246,10 @@ def atualiza_precos():
 
     task = current_app.atualiza_precos_task
     clear_task = request.args.get('clear_task', None)
-    if clear_task and clear_task == 'yes' and task.state == 'SUCCESS':
-        current_app.atualiza_precos_task = task = None
+    if clear_task and clear_task == 'yes':
+        if task and task.state == 'SUCCESS':
+            current_app.inativar_task = task = None
+        return redirect(url_for('produtos.atualiza_precos'))
 
     produtos = None
     if not task:
@@ -280,8 +286,10 @@ def atualiza_promocoes():
 
     task = current_app.atualiza_promocoes_task
     clear_task = request.args.get('clear_task', None)
-    if clear_task and clear_task == 'yes' and task.state == 'SUCCESS':
-        current_app.atualiza_promocoes_task = task = None
+    if clear_task and clear_task == 'yes':
+        if task and task.state == 'SUCCESS':
+            current_app.inativar_task = task = None
+        return redirect(url_for('produtos.atualiza_promocoes'))
 
     produtos = None
     if not task:
@@ -317,8 +325,10 @@ def inativar():
 
     task = current_app.inativar_task
     clear_task = request.args.get('clear_task', None)
-    if clear_task and clear_task == 'yes' and task.state == 'SUCCESS':
-        current_app.inativar_task = task = None
+    if clear_task and clear_task == 'yes':
+        if task and task.state == 'SUCCESS':
+            current_app.inativar_task = task = None
+        return redirect(url_for('produtos.inativar'))
 
     produtos = None
     if not task:
@@ -394,7 +404,7 @@ def get_task(id):
 
     task = mycelery.AsyncResult(id)
 
-    if task.info:
+    if task and task.info:
         return jsonify({
             'id': task.id,
             'name': task.info['name'],

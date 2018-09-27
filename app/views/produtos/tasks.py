@@ -15,6 +15,7 @@ from app.models.config import ConfigMagento
 from app.models.produtos import CissProdutoGrade, MagProduto
 
 # Import da Api Magento
+from xmlrpc.client import Fault
 from app.core.api_magento.product import createProduct, updateProduct
 from app.core.api_magento.product import updateImage
 
@@ -85,24 +86,26 @@ def enviar_novos_task(self, produtos):
     count = 1
     total = len(produtos)
 
-    for sku, categorias in produtos.items():
-        self.update_state(
-            state='PROGRESS',
-            meta={
-                'name': format_task_name(self.name),
-                'complete': concluidos,
-                'errors_count': erros_count,
-                'errors': erros,
-                'current': count,
-                'total': total,
-                'status': f'Enviando o produto {sku}'
-            }
-        )
+    print('OK')
+    with app.app_context():
+        db.engine.dispose()
+        
+        for sku, categorias in produtos.items():
+            self.update_state(
+                state='PROGRESS',
+                meta={
+                    'name': format_task_name(self.name),
+                    'complete': concluidos,
+                    'errors_count': erros_count,
+                    'errors': erros,
+                    'current': count,
+                    'total': total,
+                    'status': f'Enviando o produto {sku}'
+                }
+            )
 
-        try:
-            Log.info(f'[NOVOS] Iniciando o envio do item {sku}.')
-            with app.app_context():
-                db.engine.dispose()
+            try:
+                Log.info(f'[NOVOS] Iniciando o envio do item {sku}.')
                 produto_erp = CissProdutoGrade.by(idsubproduto=int(sku))
 
                 mag_produto = MagProduto.by(sku=int(sku))
@@ -142,17 +145,28 @@ def enviar_novos_task(self, produtos):
                 Log.info(f'[NOVOS]------ Gravado no ERP e Integrador')
 
                 concluidos += 1
+            
+            except Fault as fault:
+                if fault.faultCode == 1:
+                    produto_erp.idtipo = 2
+                    produto_erp.update()
+                
+                erros_count += 1
+                erros.append(f'Produto: {sku} -------- Erro: {e}')
 
-        except Exception as e:
-            erros_count += 1
-            erros.append(f'Produto: {sku} -------- Erro: {e}')
+                Log.error(
+                    f'[NOVOS] Erro ao enviar o produto {sku} erro: {e}')
 
-            Log.error(
-                f'[NOVOS] Erro ao enviar o produto {sku} erro: {e}')
+            except Exception as e:
+                erros_count += 1
+                erros.append(f'Produto: {sku} -------- Erro: {e}')
 
-        count += 1
+                Log.error(
+                    f'[NOVOS] Erro ao enviar o produto {sku} erro: {e}')
 
-    Log.info(f'[NOVOS] Envio de produtos finalizado.')
+            count += 1
+
+        Log.info(f'[NOVOS] Envio de produtos finalizado.')
 
     return {
         'name': format_task_name(self.name),
