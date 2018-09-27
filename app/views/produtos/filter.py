@@ -249,7 +249,9 @@ def buscar_imagens_alteradas():
     ).all()
 
     skus = [p.sku for p in produtos]
-    produtos = buscarProdutos(codigo=skus).all()
+    produtos = buscarProdutos(codigo=skus).filter(
+        CissProdutoGrade.idtipo == 2
+    ).all()
 
     return produtos
 
