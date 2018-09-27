@@ -138,7 +138,7 @@ def enviar_novos():
     clear_task = request.args.get('clear_task', None)
     if clear_task and clear_task == 'yes':
         if task and task.state == 'SUCCESS':
-            current_app.inativar_task = task = None
+            current_app.enviar_novos_task = task = None
         return redirect(url_for('produtos.enviar_novos'))
 
     produtos = None
@@ -210,7 +210,7 @@ def atualiza_estoque():
     clear_task = request.args.get('clear_task', None)
     if clear_task and clear_task == 'yes':
         if task and task.state == 'SUCCESS':
-            current_app.inativar_task = task = None
+            current_app.atualiza_estoque_task = task = None
         return redirect(url_for('produtos.atualiza_estoque'))
 
     produtos = None
@@ -248,7 +248,7 @@ def atualiza_precos():
     clear_task = request.args.get('clear_task', None)
     if clear_task and clear_task == 'yes':
         if task and task.state == 'SUCCESS':
-            current_app.inativar_task = task = None
+            current_app.atualiza_precos_task = task = None
         return redirect(url_for('produtos.atualiza_precos'))
 
     produtos = None
@@ -288,7 +288,7 @@ def atualiza_promocoes():
     clear_task = request.args.get('clear_task', None)
     if clear_task and clear_task == 'yes':
         if task and task.state == 'SUCCESS':
-            current_app.inativar_task = task = None
+            current_app.atualiza_promocoes_task = task = None
         return redirect(url_for('produtos.atualiza_promocoes'))
 
     produtos = None

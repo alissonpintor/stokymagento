@@ -88,7 +88,7 @@ def enviar_novos_task(self, produtos):
 
     with app.app_context():
         db.engine.dispose()
-        
+ 
         for sku, categorias in produtos.items():
             self.update_state(
                 state='PROGRESS',
