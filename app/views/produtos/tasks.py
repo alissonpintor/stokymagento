@@ -213,7 +213,7 @@ def enviar_novos_task(self, produtos):
 
                 # salva se o produto possui imagem ou nao
                 possui_imagem = True if sku in imagens else False
-                mag_produto.atualiza_imagem = not possui_imagem
+                mag_produto.atualiza_imagem = False
                 mag_produto.possui_imagem = possui_imagem
                 mag_produto.update()
 
