@@ -86,7 +86,6 @@ def enviar_novos_task(self, produtos):
     count = 1
     total = len(produtos)
 
-    print('OK')
     with app.app_context():
         db.engine.dispose()
         
@@ -152,10 +151,10 @@ def enviar_novos_task(self, produtos):
                     produto_erp.update()
                 
                 erros_count += 1
-                erros.append(f'Produto: {sku} -------- Erro: {e}')
+                erros.append(f'Produto: {sku} -------- Erro: {fault}')
 
                 Log.error(
-                    f'[NOVOS] Erro ao enviar o produto {sku} erro: {e}')
+                    f'[NOVOS] Erro ao enviar o produto {sku} erro: {fault}')
 
             except Exception as e:
                 erros_count += 1
