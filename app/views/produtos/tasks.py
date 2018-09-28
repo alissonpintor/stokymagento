@@ -18,7 +18,7 @@ from app.models.produtos import CissProdutoGrade, MagProduto
 # Import da Api Magento
 from xmlrpc.client import Fault
 from app.core.api_magento.product import createProduct, updateProduct
-from app.core.api_magento.product import updateImage
+from app.core.api_magento.product import updateImage, removeImage, listImage
 
 # Import dos Utils usados
 from app.core.utils import read_images
@@ -97,14 +97,39 @@ def atualiza_imagem_task(self):
 
             try:
                 imagem = imagens.get(p.sku, None)
+                nome_imagem = str(p.sku)
+                
                 if not imagem:
                     Log.info(f'[IMAGENS]------ Produto sem imagem')
                     count += 1
                     continue
 
+                imagens_site = listImage(
+                    p.sku
+                )
+
+                # verifca se o produto possui imagens para serem excluidas
+                # antes de enviar a nova
+                if imagens_site:
+                    for im in imagens_site:
+                        # se ao tentar excluir a imagem gerar a exceção de que
+                        # a imagem nao existe na galeria do produto salva como
+                        # erro para ser exida ao usuario
+                        try:
+                            removeImage(
+                                p.sku,
+                                im['file'],
+                            )                        
+                        except Fault as e:
+                            pass
+
+                    # se existir imagens altera o nome para adcionar um contador
+                    # exemplo: 13504_6
+                    nome_imagem = f'{nome_imagem}_{len(imagens_site) + 1}'
+
                 updateImage(
                     imagem,
-                    str(p.sku),
+                    nome_imagem,
                     str(p.sku)
                 )
                 Log.info(f'[IMAGENS]------ Imagem enviada com sucesso')

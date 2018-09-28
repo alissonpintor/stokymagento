@@ -89,7 +89,7 @@ def updateProductList(products):
     return items, erros
 
 
-def updateImage(image, name, prod_id):
+def updateImage(image, name, sku):
     with magento.ProductImages(api.url, api.user, api.passwd) as prodImage:
         import base64
         
@@ -112,7 +112,25 @@ def updateImage(image, name, prod_id):
         }
 
         prodImage.create(
-            product=prod_id,
+            product=sku,
             data=productImage,
+            identifierType='sku'
+        )
+
+
+def listImage(sku):
+    with magento.ProductImages(api.url, api.user, api.passwd) as prodImage:
+        images = prodImage.list(
+            product=sku,
+            identifierType='sku'
+        )
+        return images
+
+
+def removeImage(sku, image_name):
+    with magento.ProductImages(api.url, api.user, api.passwd) as prodImage:
+        prodImage.remove(
+            product=sku,
+            img_file_name=f'Imagem_{image_name}',
             identifierType='sku'
         )
