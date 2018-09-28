@@ -8,6 +8,7 @@ from app.application import app
 from app.log import Log
 
 # importa o Celery
+from celery.schedules import crontab
 from app.application import mycelery
 
 # import das models usadas na view
@@ -287,7 +288,7 @@ def atualiza_estoque_task(self):
     concluidos = 0
     erros_count = 0
     erros = []
-    count = 1
+    count = 0
     total = len(produtos)
 
     for p in produtos:
@@ -366,7 +367,7 @@ def atualiza_precos_task(self):
     concluidos = 0
     erros_count = 0
     erros = []
-    count = 1
+    count = 0
     total = len(produtos)
 
     for p in produtos:
@@ -442,7 +443,7 @@ def atualiza_promocoes_task(self):
     concluidos = 0
     erros_count = 0
     erros = []
-    count = 1
+    count = 0
     total = len(produtos)
 
     for p in produtos:
@@ -520,7 +521,7 @@ def inativar_task(self):
     concluidos = 0
     erros_count = 0
     erros = []
-    count = 1
+    count = 0
     total = len(produtos)
 
     for p in produtos:
@@ -592,3 +593,22 @@ def inativar_task(self):
         'total': total,
         'status': 'complete'
     }
+
+
+@mycelery.on_after_configure.connect
+def periodic_tasks(sender, **kwargs):
+    """
+        Confira as tarefas para serem executadas no tempo determinado
+    """
+
+    # (atualiza_precos_task) executado de segunda a sabado aos 15 minutos
+    # das horas 0, 11 e 17
+    sender.add_periodic_task(
+        crontab(minute=15, hour=[0, 11, 17], day_of_week='mon-sat'),
+        atualiza_precos_task)
+
+    # (atualiza_estoque_task) executado de segunda a sabado aos 45 minutos
+    # das horas 0, 8, 14 e 19
+    sender.add_periodic_task(
+        crontab(minute=45, hour=[0, 8, 14, 19], day_of_week='mon-sat'),
+        atualiza_estoque_task)
