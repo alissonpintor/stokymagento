@@ -9,6 +9,12 @@ from app.models.produtos import MagCategoriaProduto
 from app.models.produtos import CissProdutoGrade, MagProduto
 from app.models.produtos import CissProdutoEstoque, CissProdutoPreco
 
+# import da api magento
+from app.core.api_magento.product import productInfo
+
+# import do log
+from app.log import Log
+
 
 def buscarProdutos(codigo=None, inativo=False):
     """
@@ -248,10 +254,11 @@ def buscar_imagens_alteradas():
         MagProduto.atualiza_imagem == True
     ).all()
 
-    skus = [p.sku for p in produtos]
-    produtos = buscarProdutos(codigo=skus).filter(
-        CissProdutoGrade.idtipo == 2
-    ).all()
+    if produtos:
+        skus = [p.sku for p in produtos]
+        produtos = buscarProdutos(codigo=skus).filter(
+            CissProdutoGrade.idtipo == 2
+        ).all()
 
     return produtos
 
@@ -272,23 +279,42 @@ def atualizar_base(produtos):
         recebe um lista dos produtos do site e
         atualiza a base do sistema
     """
-    
+
+    Log.info('[ATUALIZA BASE] Iniciando a atualização da base')
     for p in produtos:
         sku = p['sku']
-        break
-        
+
         if sku.isdigit():
             sku = int(sku)
-        
-        produto = CissProdutoGrade.query.filter(
-            CissProdutoGrade.idsubproduto == sku,
-            db.or_(
-                CissProdutoGrade.idtipo != 2,
-                CissProdutoGrade.idtipo != 3
-            )
-        ).first()
 
-        if produto:
-            produto.idmodelo = 4
-            produto.idtipo = 2
-            produto.update()
+        mag_produto = MagProduto.by(sku=sku)
+        produto_ciss = CissProdutoGrade.by(idsubproduto=sku)
+        
+        if not mag_produto and produto_ciss:
+            Log.info(f'[ATUALIZA BASE] Registrando o item {sku}')
+
+            try:
+                produto_site = productInfo(sku)
+            except Exception:
+                continue
+
+            mag_produto = MagProduto()
+            mag_produto.sku = sku
+            mag_produto.idsecao = produto_site['categories'][0]
+            mag_produto.idgrupo = produto_site['categories'][1]
+            mag_produto.idsubgrupo = produto_site['categories'][2]
+            mag_produto.atualiza_imagem = False
+            mag_produto.possui_imagem = True
+            
+            mag_produto.update()
+            Log.info('[ATUALIZA BASE]------ Registrado no Integrador')
+
+            # salva no erp verificando se esta ativo no site
+            status = produto_site['status']
+            produto_ciss.idmodelo = 4
+            produto_ciss.idtipo = 2 if status == '1' else 3
+            produto_ciss.update()
+            Log.info('[ATUALIZA BASE]------ Registrado no ERP')
+    
+    Log.info('[ATUALIZA BASE] Atualização da base Finalizada')
+

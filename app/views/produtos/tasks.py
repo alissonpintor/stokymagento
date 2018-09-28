@@ -75,7 +75,7 @@ def atualiza_imagem_task(self):
         concluidos = 0
         erros_count = 0
         erros = []
-        count = 1
+        count = 0
         total = len(produtos)
 
         for p in produtos:
@@ -159,7 +159,7 @@ def enviar_novos_task(self, produtos):
     concluidos = 0
     erros_count = 0
     erros = []
-    count = 1
+    count = 0
     total = len(produtos)
 
     with app.app_context():
@@ -240,6 +240,19 @@ def enviar_novos_task(self, produtos):
                     f'[NOVOS] Erro ao enviar o produto {sku} erro: {e}')
 
             count += 1
+
+            self.update_state(
+                state='PROGRESS',
+                meta={
+                    'name': format_task_name(self.name),
+                    'complete': concluidos,
+                    'errors_count': erros_count,
+                    'errors': erros,
+                    'current': count,
+                    'total': total,
+                    'status': f'Enviando o produto {sku}'
+                }
+            )
 
         Log.info(f'[NOVOS] Envio de produtos finalizado.')
 
