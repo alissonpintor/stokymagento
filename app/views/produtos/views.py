@@ -126,7 +126,8 @@ def enviar_imagem():
         Log.info(f'[ENVIAR IMAGEM] Enviado Imagem do produto {nome}.')
 
     result = {
-        'title': 'Enviar Imagens Produtos'
+        'title': 'Produtos',
+        'subtitle': 'Enviar Imagens'
     }
     return render_template(template, **result)
 

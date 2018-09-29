@@ -533,79 +533,77 @@ def inativar_task(self):
         Fault<sku já existe no site>
             Exceção lançada quando o produto já existe no site
     """
-
-    Log.info(f'[INATIVAR] Iniciando o envio dos produtos.')
-
-    config = ConfigMagento.by_id(1)
-    dthr_sincr = datetime.now()
-    produtos = buscar_produtos_inativos()
-    produtos = converte_produto_inativo(produtos)
-
-    # Variáveis utilizadas para atualizar a barra de
-    # progresso na tela do usuário
-    concluidos = 0
-    erros_count = 0
-    erros = []
-    count = 0
-    total = len(produtos)
-
-    for p in produtos:
-        self.update_state(
-            state='PROGRESS',
-            meta={
-                'name': format_task_name(self.name),
-                'complete': concluidos,
-                'errors_count': erros_count,
-                'errors': erros,
-                'current': count,
-                'total': total,
-                'status': f'Enviando o produto {p["sku"]}'
-            }
-        )
-
-        try:
-            Log.info(f'[INATIVAR] Iniciando o envio do item {p["sku"]}.')
-            updateProduct(
-                p['sku'],
-                p['data']
-            )
-            Log.info(f'[INATIVAR]------ Enviado para o site')
-
-            concluidos += 1
-
-            # Grava no ERP que o produto foi inativado no site
-            with app.app_context():
-                db.engine.dispose()
-                produto_erp = CissProdutoGrade.by(idsubproduto=int(p["sku"]))
-
-                if produto_erp:
-                    # pega o tipo e se esta inativo do ERP
-                    inativo, tipo = produto_erp.idtipo, produto_erp.flaginativo
-
-                    # verifica se o produto foi ativado ou inativado no site
-                    if tipo == 2 and inativo == 'T':
-                        produto_erp.idtipo = 3
-                    elif tipo == 3 and inativo == 'F':
-                        produto_erp.idtipo = 2
-
-                    produto_erp.update()
-
-                    Log.info(f'[INATIVAR]------ Gravado no ERP como inativo')
-
-        except Exception as e:
-            erros_count += 1
-            erros.append(f'Produto: {p["sku"]} -------- Erro: {e}')
-
-            Log.error(
-                f'[INATIVAR] Erro ao enviar o produto {p["sku"]} erro: {e}')
-
-        count += 1
-
-    Log.info(f'[INATIVAR] Envio de produtos finalizado.')
-    Log.info(f'[INATIVAR] Salvando data e hora da sincronização.')
-
+    
     with app.app_context():
-        db.engine.dispose()  # corrigi o erro do postgres
+        Log.info(f'[INATIVAR] Iniciando o envio dos produtos.')
+        db.engine.dispose()
+
+        config = ConfigMagento.by_id(1)
+        dthr_sincr = datetime.now()
+        produtos_erp = buscar_produtos_inativos()
+        # produtos = converte_produto_inativo(produtos)
+
+        # Variáveis utilizadas para atualizar a barra de
+        # progresso na tela do usuário
+        concluidos = 0
+        erros_count = 0
+        erros = []
+        count = 0
+        total = len(produtos_erp)
+
+        for produto_erp in produtos_erp:
+            sku = produto_erp.idsubproduto
+            
+            self.update_state(
+                state='PROGRESS',
+                meta={
+                    'name': format_task_name(self.name),
+                    'complete': concluidos,
+                    'errors_count': erros_count,
+                    'errors': erros,
+                    'current': count,
+                    'total': total,
+                    'status': f'Enviando o produto {sku}'
+                }
+            )
+
+            try:
+                Log.info(f'[INATIVAR] Iniciando o envio do item {sku}.')
+
+                mag_produto = converte_produto_inativo(produto_erp)
+                updateProduct(
+                    mag_produto['sku'],
+                    mag_produto['data']
+                )
+                Log.info(f'[INATIVAR]------ Enviado para o site')
+
+                # pega o tipo e se esta inativo do ERP
+                tipo, inativo = produto_erp.idtipo, produto_erp.flaginativo
+
+                # verifica se o produto foi ativado ou inativado no site
+                if tipo == 2 and inativo == 'T':
+                    produto_erp.idtipo = 3
+                elif tipo == 3 and inativo == 'F':
+                    produto_erp.idtipo = 2
+
+                produto_erp.update()
+
+                Log.info(f'[INATIVAR]------ Gravado no ERP.')
+
+                concluidos += 1
+
+            except Exception as e:
+                erros_count += 1
+                erros.append(f'Produto: {sku} -------- Erro: {e}')
+
+                Log.error(
+                    f'[INATIVAR] Erro ao enviar o produto {sku} erro: {e}')
+
+            count += 1
+
+        Log.info(f'[INATIVAR] Envio de produtos finalizado.')
+        Log.info(f'[INATIVAR] Salvando data e hora da sincronização.')
+
         config.dtsincr_inativos = dthr_sincr
         config.update()
 
@@ -636,4 +634,8 @@ def periodic_tasks(sender, **kwargs):
     # das horas 0, 8, 14 e 19
     sender.add_periodic_task(
         crontab(minute=45, hour=[0, 8, 14, 19], day_of_week='mon-sat'),
-        atualiza_estoque_task)
+        atualiza_estoque_task)    
+
+    # (inativar_task) executado de segunda a sabado às 20:15
+    sender.add_periodic_task(
+        crontab(minute=15, hour=20, day_of_week='mon-sat'), inativar_task)

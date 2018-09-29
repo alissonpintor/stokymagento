@@ -10,4 +10,8 @@ dashboard = Blueprint('dashboard', __name__)
 @dashboard.route('/')
 @login_required
 def index():
-    return render_template('dashboard/main.html')
+    result = {
+        'title': 'Integrador Magento',
+        'subtitle': 'Tela Inicial'
+    }
+    return render_template('dashboard/main.html', **result)
