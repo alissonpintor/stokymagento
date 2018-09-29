@@ -14,7 +14,11 @@
                 <form action="" class="form-horizontal" method="POST">
                     {{ form.csrf_token }} {{ form.config_id() }} {{ form.api_url() }}
                     {{ form.api_user() }} {{ form.api_pass() }} {{ form.magento_version() }}
-                    {{ form.categoria_default() }} {{ form.dtsincr_estoque(disabled=True) }}
+                    {{ form.categoria_default() }} 
+                    {{ form.dtsincr_estoque(disabled=True) }}
+                    {{ form.dtsincr_preco(disabled=True) }}
+                    {{ form.dtsincr_promocao(disabled=True) }}
+                    {{ form.dtsincr_inativos(disabled=True) }}
 
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">

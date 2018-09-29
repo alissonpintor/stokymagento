@@ -23,11 +23,9 @@ class ConfigMagentoForm(FlaskForm):
     """
 
     config_id = HiddenField('ID', default=0)
-    api_url = StringField(
-        'URL Base', 
-        widget=w.GeInputWidget(), 
-        validators=[DataRequired()]
-    )
+    api_url = StringField('URL Base', widget=w.GeInputWidget(), 
+                          validators=[DataRequired()])
+    
     api_user = StringField(
         'User', 
         widget=w.GeInputWidget(), 
@@ -48,6 +46,21 @@ class ConfigMagentoForm(FlaskForm):
     )
     dtsincr_estoque = DateTimeField(
         'Sincronizaçao Estoque',
+        format='%d/%m/%Y %H:%M:%S', 
+        widget=w.GeDateTimeWidget()
+    )
+    dtsincr_preco = DateTimeField(
+        'Sincronizaçao Preço',
+        format='%d/%m/%Y %H:%M:%S', 
+        widget=w.GeDateTimeWidget()
+    )
+    dtsincr_inativos = DateTimeField(
+        'Sincronizaçao Inativos',
+        format='%d/%m/%Y %H:%M:%S', 
+        widget=w.GeDateTimeWidget()
+    )
+    dtsincr_promocao = DateTimeField(
+        'Sincronizaçao Promoção',
         format='%d/%m/%Y %H:%M:%S', 
         widget=w.GeDateTimeWidget()
     )

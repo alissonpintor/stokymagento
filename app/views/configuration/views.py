@@ -62,6 +62,9 @@ def magento():
         form.magento_version.data = config.magento_version
         form.categoria_default.data = config.categoria_default
         form.dtsincr_estoque.data = config.dtsincr_estoque
+        form.dtsincr_preco.data = config.dtsincr_preco
+        form.dtsincr_promocao.data = config.dtsincr_promocao
+        form.dtsincr_inativos.data = config.dtsincr_inativos
 
     if form.validate_on_submit():
         config.api_url = form.api_url.data
