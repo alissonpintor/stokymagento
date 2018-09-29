@@ -83,10 +83,12 @@ def enviar_imagem():
 
     if request.method == 'POST':
         import os
+        import glob
 
         base_path = os.getcwd() + '/uploads/photos/'
         imagem = request.files['file']
         nome = imagem.filename
+        sku = int(nome.split('.')[0])
         filepath = base_path + nome
 
         if nome == '':
@@ -102,15 +104,19 @@ def enviar_imagem():
         if not validar_nome_imagem(nome):
             return 'O nome da imagem precisa ser um codigo válido', 400
 
-        if os.path.exists(filepath) and os.path.isfile(filepath):
-            os.remove(filepath)
+        # verifca se ja existe alguma imagem na pasta deste item
+        # pegando o sku do item e iterando na pasta de destino, verificando
+        # se existe alguma imagem e a removendo
+        path = os.path.dirname(filepath)
+        if os.path.exists(path):
+            for im in glob.glob(os.path.join(path, f'{sku}*.*')):
+                os.remove(os.path.join(path, im))
 
         image = imageSet.save(imagem)
         image = base_path + image
         genImage(image, image)
 
         # busca o cadastro do produto e se existir altera para atualizar imagem
-        sku = int(nome.split('.')[0])
         produto = MagProduto.by(sku=sku)
         if produto:
             produto.atualiza_imagem = True
