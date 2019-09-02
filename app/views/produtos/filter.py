@@ -242,7 +242,7 @@ def buscar_produtos_promocao(dthr_sincr=None):
     )
     produtos = produtos.union(produtos_removidos).all()
 
-    return produtos[:15]
+    return produtos
 
 
 def buscar_imagens_alteradas():
